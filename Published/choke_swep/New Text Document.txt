@@ -1,0 +1,1 @@
+"E:\Games\SteamLibrary\steamapps\common\GarrysMod\bin\gmpublish.exe" update -addon "E:\choke_swep\arm_project.gma" -id "2976350975" -changes "Fixed a few things like npcs sometimes not standing up, being able to point at props and them breaking, and some more things. Also added an option to disable choking damage" 

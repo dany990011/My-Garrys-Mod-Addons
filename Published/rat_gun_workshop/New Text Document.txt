@@ -1,0 +1,1 @@
+"E:\Games\SteamLibrary\steamapps\common\GarrysMod\bin\gmpublish.exe" update -addon "E:\rat_gun_workshop\rat_gun.gma" -id "2959644699" -changes "Added splash sound, spread, changed secondary fire"

@@ -1,0 +1,5 @@
+"LightmappedGeneric"
+{
+	"$basetexture" "vgui/entities/cockroach_gun"
+	"$translucent" 1
+}

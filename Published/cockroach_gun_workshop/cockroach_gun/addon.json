@@ -1,0 +1,6 @@
+{
+"title" : "Cockroach Gun",
+"type" : "weapon",
+"tags" : ["fun","comic"],
+"ignore" : ["*.psd", "*.vcproj", "*.svn*"]
+}

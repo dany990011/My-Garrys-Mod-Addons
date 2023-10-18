@@ -1,0 +1,3 @@
+
+"E:\Games\SteamLibrary\steamapps\common\GarrysMod\bin\gmpublish.exe" create -addon "E:\choke_swep\arm_project.gma" -icon "E:\choke_swep\choke_swep.jpg"
+pause

@@ -1,0 +1,1 @@
+workshop_build_item "E:\cockraoch_workshop\publish_gif_icon.vdf"

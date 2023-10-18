@@ -1,0 +1,3 @@
+
+"E:\Games\SteamLibrary\steamapps\common\GarrysMod\bin\gmpublish.exe" create -addon "E:\cockroach_gun_workshop\cockroach_gun.gma" -icon "E:\cockroach_gun_workshop\cockroach_gun.jpg"
+pause

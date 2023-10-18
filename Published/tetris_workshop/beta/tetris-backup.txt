@@ -1,0 +1,416 @@
+AddCSLuaFile()
+
+ENT.Type = "anim"
+ENT.Base = "base_anim"
+ENT.PrintName = "Tetris"
+ENT.Author = "SMOK"
+ENT.Spawnable = true
+ENT.AdminSpawnable = true
+
+
+function ENT:Initialize()
+    if SERVER then
+
+
+        self.bordersSpawned = false
+        self.grid = false
+
+        self.activePiece = false
+        self.dwonButton = false
+
+        self.pieceTimer = 0
+        self.speed = 1
+
+        self.pieceType = {
+            [1] = {
+                num = 4,
+                spawnPos = {
+                    105,
+                    106,
+                    95,
+                    96
+                }
+            }
+
+        }
+
+        self:SetModel("models/hunter/blocks/cube05x5x025.mdl")
+        --self:SetMoveType(MOVETYPE_FLY)
+        self:SetSolid(SOLID_VPHYSICS)
+        --self:SetCollisionGroup(COLLISION_GROUP_PROJECTILE)
+        self:PhysicsInit(SOLID_VPHYSICS)
+       
+        
+        local phys = self:GetPhysicsObject()
+        
+        if IsValid(phys) then
+            phys:Wake()
+            phys:SetMass(1)
+            phys:EnableDrag(false)
+            phys:EnableGravity(false)
+            phys:EnableMotion(false)
+            
+        end
+
+        
+        
+    end
+
+    hook.Add("PlayerBindPress", "UnbindInputs", UnbindInputs)
+
+    
+    
+end
+
+
+
+function ENT:Think()
+
+
+    local ang = self:GetAngles()
+    ang.pitch = 0
+    ang.roll = 0
+    self:SetAngles(ang)
+
+
+    local mins = self:OBBMins()
+    local maxs = self:OBBMaxs()
+
+    local blockSpwan = self:GetPos() + Vector(0,0,127.3) -- dumb
+
+    --print("MAX Y IS", maxs.y - mins.y)
+    --print("MAX X IS", maxs.x - mins.x)
+
+    local positions = {
+        leftDown = Vector(maxs.x, mins.y, mins.z + 20),
+        leftUp = Vector(mins.x, mins.y, mins.z + 20),
+        rightDown = Vector(mins.x, maxs.y, mins.z + 20),
+        rightUp = Vector(maxs.x, maxs.y, mins.z + 20),
+
+    }
+
+    local gridLimits = {
+        leftMidDown = (positions.leftUp + positions.leftDown)/2 + (positions.rightUp + positions.rightDown)/2 * 0.1,
+        rightMidDown = (positions.rightUp + positions.rightDown)/2,
+        leftMidUp = (positions.leftUp + positions.leftDown)/2 + Vector(0,0,127.3),
+        rightMidUp = (positions.rightUp + positions.rightDown)/2 + Vector(0,0,127.3)
+    }
+
+
+    if not self.grid then 
+
+        gridPosH = {
+            --pos1 = (gridLimits.leftMidDown + Vector(0,0,127.3 ) * 0 + Vector(0,0,27.3 ) )
+    
+        }
+        gridPosW = {
+            --pos1 = (gridLimits.leftMidDown + Vector(0,0,127.3 ) * 0 + Vector(0,0,27.3 ) )
+    
+        }
+
+        for i = 0, 10 do
+            
+            table.insert(gridPosH, i, Vector(gridLimits.leftMidDown.x, gridLimits.leftMidDown.y, 0) + Vector(0,0,240 ) * i * 0.1 + Vector(0,0,18))
+            
+        end
+
+        for index, value in pairs(gridPosH) do 
+
+
+            for i = 0, 9 do
+
+                table.insert(gridPosW, {pos = Vector(gridLimits.leftMidDown.x, gridLimits.leftMidDown.y, 0) + Vector(gridLimits.rightMidDown.x, gridLimits.rightMidDown.y, 0) * i * 0.2 + Vector(0,0,value.z) , occupied = false}   )
+
+            end
+
+        end
+
+        self.grid = true
+
+    end
+
+    if SERVER then
+
+
+        if self.pieces then
+            hook.Add("PlayerButtonDown", "MovePiece", function(ply, key)
+                self:MovePiece(ply, key)
+            end)
+            hook.Add("PlayerButtonUp", "SlowPiece", function(ply, key)
+                self:SlowPiece(ply, key)
+            end)
+        end
+
+        if self.downButton then 
+            self.speed = 0.1
+        else
+            self.speed = 1
+        end
+
+        if not self.pieces then
+
+           -- PrintTable (self.pieceType[1])
+
+           self.pieces = {}
+
+            for i = 1, self.pieceType[1].num do
+            
+                print("HEIGHT TABLE  IS ")
+                --PrintTable(gridPosH)
+                print("WIDTH TABLE  IS ")
+                --PrintTable(gridPosW)
+                local piece = ents.Create("prop_physics")
+                piece:SetModel("models/hunter/blocks/cube05x05x05.mdl")
+                piece:Spawn()
+                piece:SetPos(self:LocalToWorld(gridPosW[self.pieceType[1].spawnPos[i]].pos))
+                piece:SetAngles(self:GetAngles())
+                piece.active = true
+                local piecePhys = piece:GetPhysicsObject()
+                piecePhys:EnableGravity(false)
+                piecePhys:EnableDrag(false)
+                piecePhys:EnableMotion(false)
+                --self.piecePhys:SetVelocity(Vector(0,0,-50))
+
+                table.insert(self.pieces , piece)
+                self.activePiece = true
+                piece.gridPos = self.pieceType[1].spawnPos[i]
+            end
+            
+        end
+
+        if CurTime() - self.pieceTimer > self.speed and self.pieces then
+
+            -- pieceMins = self.piece:OBBMins()
+            -- pieceMaxs = self.piece:OBBMaxs()
+
+            -- self.pieceMins = pieceMins
+            -- self.pieceMaxs = pieceMaxs
+            
+            -- local distToMoveDown = (self.piece:LocalToWorld(pieceMaxs) - self.piece:LocalToWorld(pieceMins))/2
+            
+            -- local centerBottom = Vector(self.piece:GetPos().x, self.piece:GetPos().y, self.piece:LocalToWorld(pieceMins).z)
+            -- local centerTop = Vector(self.piece:GetPos().x, self.piece:GetPos().y, self.piece:LocalToWorld(pieceMaxs).z)
+
+            
+            --[[ 
+            local tr = util.TraceLine({
+                start = centerBottom,
+                endpos = centerBottom + Vector(0,0,-300),
+                filter = function(ent)
+                    if ent.active then
+                        print("hit self")
+                        return false  
+                    end
+                    --print("ACTIVE STATUS", self.piece.active)
+                    return true 
+                end
+            })
+
+            if tr.Hit then
+                -- print ("STARTPOS :",centerBottom)
+                -- print ("HITPOS :",tr.HitPos)
+                -- print("POS:", self.piece:GetPos())
+                -- print("ENTITY IS", tr.Entity)
+                local dist = tr.HitPos:Distance(centerBottom)
+                -- print("DIST IS",dist)
+                if dist < 5 then
+                    self.piece.active = false
+                    self.activePiece = false
+                    self.piece = nil
+                    print ("WELD NOW !!!")
+                    return
+                end
+            end
+             ]]
+            --self.piece:SetPos(self.piece:GetPos() - Vector(0,0,distToMoveDown.z))
+            print("table is")
+            PrintTable(self.pieces)
+            for k,v in pairs(self.pieces) do 
+                
+                local nextPosDown = v.gridPos - 10
+                if not gridPosW[nextPosDown] or gridPosW[nextPosDown].occupied  then 
+                    for k2 ,v2 in pairs(self.pieces) do
+                        v2.ok = false 
+                    end
+                    break
+                else
+                    v.ok = true
+                end
+                
+            
+            end
+
+            for k,v in pairs(self.pieces) do 
+                print(k,v.ok)
+                if not v.ok then 
+
+                    gridPosW[v.gridPos].occupied = true 
+                    gridPosW[v.gridPos].ent = v
+                    v.active = false
+                    self.activePiece = false
+                    self.pieces = nil
+                    print ("WELD NOW !!!")
+                    PrintTable(gridPosW)
+                    
+
+                else
+
+                    v.gridPos = v.gridPos - 10
+                    v:SetPos(self:LocalToWorld(gridPosW[v.gridPos].pos))
+                    print (v.gridPos)
+                
+                    print ("NEW POS IS", gridPosW[v.gridPos ])
+
+                end
+                
+            end
+            
+            self.pieceTimer = CurTime()
+        end
+
+        for k,v in pairs(positions) do 
+
+
+            if not self[k.."Border"] then
+                self[k.."Border"] = ents.Create("prop_physics")
+                self[k.."Border"]:SetModel("models/hunter/blocks/cube025x025x025.mdl")
+                self[k.."Border"]:SetCollisionGroup(COLLISION_GROUP_WORLD)
+                self[k.."Border"]:Spawn()
+                self[k.."BorderPhys"] = self[k.."Border"]:GetPhysicsObject()
+                self[k.."BorderPhys"]:EnableGravity(false)
+                self[k.."BorderPhys"]:SetVelocity(Vector(0,0,500))
+                self[k.."Border"]:SetPos(self:LocalToWorld(v))
+                local test = constraint.Elastic(self, self[k.."Border"] ,0 , 0, v + Vector(0,0,-7), Vector(0,0,0) ,  0, 0, 0,  "cable/cable2",2, true)
+                
+    
+            end
+            --self[k.."Border"]:SetPos(self:LocalToWorld(Vector(leftDown.x,leftDown.y,self[k.."Border"]:GetPos().z)))
+            -- local currentPos = self[k.."Border"]:GetPos()
+            -- local newPos = Vector(leftDown.x, leftDown.y, currentPos.z)
+            -- self[k.."Border"]:SetPos(self:LocalToWorld(newPos))
+            -- print ("CUBE POSITION", self[k.."Border"]:GetPos())
+            -- print ("leftDown POSITION", leftDown)
+            local dist = (self:LocalToWorld(v) - self[k.."Border"]:GetPos()):GetNormalized() * 200
+            local distX = dist.x
+            local distY = dist.y
+            if distX > 0.1 or distY > 0.01 then
+                -- print(distX)
+                -- print(distY)
+                self[k.."BorderPhys"]:SetVelocity(Vector(distX,distY,self[k.."BorderPhys"]:GetVelocity().z))
+            end
+
+        end
+        
+        
+
+    end
+
+end
+
+
+
+
+
+
+
+-- Define the hook function
+function ENT:MovePiece (ply, key)
+
+    if SERVER and self.pieces then
+
+        
+        --local distToMoveSide = (self.piece:LocalToWorld(pieceMaxs) - self.piece:LocalToWorld(pieceMins))/2
+
+        
+        print("KEY IS",key)
+        if key == 91 then
+
+
+            for k , v in pairs(self.pieces) do 
+                local nextPosRight = v.gridPos + 1
+                if gridPosW[nextPosRight] and gridPosW[nextPosRight].occupied == false  then 
+                    v.okSide = true
+
+                    
+                else
+                    for k2, v2 in pairs(self.pieces) do 
+                        v2.okSide = false
+                    end
+                    break 
+                end
+                
+            end
+
+            for k , v in pairs(self.pieces) do 
+                local nextPosRight = v.gridPos + 1
+                if v.okSide then
+                    v.gridPos = nextPosRight
+                    print ("NEW POS IS", gridPosW[v.gridPos ].pos)
+                    v:SetPos(self:LocalToWorld(gridPosW[v.gridPos].pos))
+                end
+
+            end
+
+
+        end  
+
+        if key == 89 then
+
+            for k , v in pairs(self.pieces) do 
+                local nextPosLeft = v.gridPos - 1
+                if gridPosW[nextPosLeft] and gridPosW[nextPosLeft].occupied == false  then 
+                    v.okSide = true
+
+                    
+                else
+                    for k2, v2 in pairs(self.pieces) do 
+                        v2.okSide = false
+                    end
+                    break 
+                end
+                
+            end
+
+            for k , v in pairs(self.pieces) do 
+                local nextPosLeft = v.gridPos - 1
+                if v.okSide then
+                    v.gridPos = nextPosLeft
+                    print ("NEW POS IS", gridPosW[v.gridPos ].pos)
+                    v:SetPos(self:LocalToWorld(gridPosW[v.gridPos].pos))
+                end
+
+            end
+           
+        end
+
+        if key == 90 then
+            
+            self.downButton = true
+           
+        end
+
+   end
+
+end
+
+function ENT:SlowPiece(ply , key)
+
+    if key == 90 then
+        self.downButton = false 
+    end
+end
+
+
+function UnbindInputs(ply, bind)
+    if bind == "+left" or bind == "+right" then
+        return true -- Block the input
+    end
+end
+
+
+function ENT:OnRemove() 
+
+    hook.Remove("PlayerBindPress", "UnbindInputs")
+    hook.Remove("PlayerButtonDown", "MovePiece")
+    hook.Remove("PlayerButtonUp", "SlowPiece")
+end

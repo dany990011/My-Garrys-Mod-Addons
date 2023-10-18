@@ -1,0 +1,16 @@
+This is an entity that lets you play Tetris in GMod.
+
+Use the arrow keys to move/rotate the blocks and use the down arrow to speed up the blocks.
+
+
+You can also change the speed of the game in the Utilities tab.
+
+
+
+
+
+
+Audio is from : [url=https://www.zapsplat.com/] zapsplat [/url] and from Tetris 99
+
+
+

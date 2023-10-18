@@ -1,0 +1,1 @@
+"E:\Games\SteamLibrary\steamapps\common\GarrysMod\bin\gmpublish.exe" update -addon "E:\rat_workshop\rat_npc.gma" -id "2956208712" -changes "small bug fix"

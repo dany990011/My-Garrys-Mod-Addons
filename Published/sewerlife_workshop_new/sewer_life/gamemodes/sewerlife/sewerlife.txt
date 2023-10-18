@@ -1,0 +1,7 @@
+"gamemode"
+{
+	"base"		"base"
+	"title"		"Gamemode"
+	"maps"		""
+	"menusystem"	"1"
+}

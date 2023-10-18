@@ -1,0 +1,1 @@
+"E:\Games\SteamLibrary\steamapps\common\GarrysMod\bin\gmpublish.exe" update -addon "E:\sewerlife_workshop_new\sewer_life.gma" -id "1855761357" -changes "Added buy menu and some other stuff, still not ready"

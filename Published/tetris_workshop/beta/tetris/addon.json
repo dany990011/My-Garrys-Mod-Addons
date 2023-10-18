@@ -1,0 +1,6 @@
+{
+"title" : "Tetris (Beta)",
+"type" : "entity",
+"tags" : ["fun","comic"],
+"ignore" : ["*.psd", "*.vcproj", "*.svn*"]
+}

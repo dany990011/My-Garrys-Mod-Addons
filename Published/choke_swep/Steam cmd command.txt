@@ -1,0 +1,1 @@
+workshop_build_item "E:\choke_swep\publish_gif_icon.vdf"

@@ -1,0 +1,10 @@
+ENT.Base = "base_entity"
+ENT.Type = "anim"
+ENT.PrintName = "Cube"
+ENT.Category = "The Cube"
+ENT.Author = "SMOK"
+ENT.Contact = "https://steamcommunity.com/id/dany990011"
+ENT.Purpose = ""
+ENT.Instructions = ""
+ENT.Spawnable = true 
+ENT.AdminOnly = false 

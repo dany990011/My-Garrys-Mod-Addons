@@ -1,0 +1,1 @@
+"E:\Games\SteamLibrary\steamapps\common\GarrysMod\bin\gmpublish.exe" update -addon ""E:\cockraoch_workshop\cockroach_npc.gma"" -id "2967476563" -changes "roaches survive nukes"
